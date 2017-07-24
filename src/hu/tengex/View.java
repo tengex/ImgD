@@ -2,18 +2,18 @@ package hu.tengex;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 public class View extends JFrame {
 
     private Controller controller;
     private View view;
+    private JTextField urlTextField;
+    private JTextField saveTextField;
+    private JLabel messageLabel;
 
     public View(Controller controller) {
-        super("ImgD");
+        super("Image Downloader");
         this.controller = controller;
         this.view = this;
         setResizable(false);
@@ -21,18 +21,43 @@ public class View extends JFrame {
 
         final JPanel inputFields = new JPanel();
         inputFields.setLayout(new BoxLayout(inputFields, BoxLayout.Y_AXIS));
-        //inputFields.setPreferredSize(new Dimension(350, 150));
+
+        urlTextField = new JTextField();
+        urlTextField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    urlTextField.setText(null);
+                    urlTextField.paste();
+                }
+            }
+        });
+
+        saveTextField = new JTextField();
+        saveTextField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    saveTextField.setText(null);
+                    saveTextField.paste();
+                }
+            }
+        });
+
+        messageLabel = new JLabel("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        messageLabel.setPreferredSize(new Dimension(100, 30));
+        messageLabel.setForeground(new Color(50, 100, 0));
         inputFields.add(new JLabel("URL:"));
-        inputFields.add(new JTextField());
+        inputFields.add(urlTextField);
         inputFields.add(new JLabel("Mappanév:"));
-        inputFields.add(new JTextField());
+        inputFields.add(saveTextField);
+        inputFields.add(messageLabel);
 
         final JPanel mainButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         mainButtons.setPreferredSize(new Dimension(350, 50));
         mainButtons.add(new Button(0));
         mainButtons.add(new Button(1));
         mainButtons.add(new Button(2));
-        //mainButtons.add(new Button(3)); //Kilépés
 
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -44,35 +69,9 @@ public class View extends JFrame {
         setVisible(true);
     }
 
-    class ExitAction extends WindowAdapter implements ActionListener {
-
-        private final JFrame frame;
-
-        public ExitAction(JFrame frame) {
-            this.frame = frame;
-        }
-
-        @Override
-        public void windowClosing(WindowEvent e) {
-            int option = JOptionPane.showConfirmDialog(frame, "Biztosan kilep a programbol?", "Biztosan kilep?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (option == JOptionPane.YES_OPTION) {
-                frame.dispose();
-                System.exit(0);
-            }
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (0 == JOptionPane.showConfirmDialog(frame, "Biztosan ki szeretne lepni?", "Biztosan kilep?", JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-                System.exit(0);
-            }
-        }
-    }
-
     class Button extends JButton {
 
         public Button(int type) {
-            //setPreferredSize(new Dimension(300, 30));
             if (type == 0) {
                 setText("Letöltés");
                 addActionListener(new Action(type));
@@ -82,9 +81,6 @@ public class View extends JFrame {
             } else if (type == 2) {
                 setText("Segítség");
                 addActionListener(new Action(type));
-            } else if (type == 3) {
-                setText("Kilépés");
-                addActionListener(new ExitAction(view));
             }
         }
 
@@ -99,14 +95,17 @@ public class View extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (0 == type) {
-                    controller.downloadURL("http://i3.imgchili.net/105494/105494436_femjoy_12096884_016.jpg","105494436_femjoy_12096884_016.jpg");
-                }
-                else if (1 == type) {
-                }
-                else if (2 == type) {
-                    JOptionPane.showMessageDialog(view, "ImgD\nkitty-kats.net, urlgalleries.net", "Segítség", JOptionPane.INFORMATION_MESSAGE);
+                    controller.downloadURL("http://i3.imgchili.net/105494/105494436_femjoy_12096884_016.jpg", "105494436_femjoy_12096884_016.jpg");
+                    controller.getURLcontent("http://people.inf.elte.hu/tengex/");
+                } else if (1 == type) {
+                    urlTextField.setText(null);
+                    saveTextField.setText(null);
+                    urlTextField.requestFocusInWindow();
+                } else if (2 == type) {
+                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgspice.com, imgchili.net, imgchili.com,\n  sexyimg.eu, imgdrive.net, imagedecode.com, imageknoxx.com, img.yt\n\n<html><u>URL:</u> a galériát tartalmazó oldal elérési címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni jobb kattintással lehet.", "Segítség", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }
     }
 }
+
