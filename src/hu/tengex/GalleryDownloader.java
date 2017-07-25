@@ -7,7 +7,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class Controller {
+public class GalleryDownloader {
+
+    private String url, savedir;
+
+    public GalleryDownloader(String url, String savedir){
+        this.url = url;
+        this.savedir = savedir;
+    }
+
     public void getURLcontent(String urlStr){
         try {
             final URL url = new URL(urlStr);

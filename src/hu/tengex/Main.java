@@ -2,6 +2,11 @@ package hu.tengex;
 
 import javax.swing.*;
 
+//TODO Megadott URL alapján töltse le a galériát
+//TODO Szövegmezőben mutassa a letöltés jelenlegi állapotát (ehhez kell, hogy észlelje, amikor egy fájl letöltődött)
+//TODO Letöltéshez legyen megadva timeout, ha az egyik fájl nem akar lejönni (valamint a letöltés gomb újabb megnyomásakor minden jelenlegi letöltő szál leállítódik)
+//TODO Tesztelni Windows-on is
+
 public class Main {
 
     public static void main(String[] args) {
@@ -18,6 +23,6 @@ public class Main {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
 
-        new View(new Controller());
+        new View();
     }
 }
