@@ -3,8 +3,10 @@ package hu.tengex;
 import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.MalformedURLException;
 
 public class View extends JFrame {
 
@@ -12,6 +14,7 @@ public class View extends JFrame {
     private JTextField urlTextField;
     private JTextField savedirTextField;
     private JLabel messageLabel;
+    private GalleryDownloader galleryDownloader;
 
     public View() {
         super("Image Downloader");
@@ -31,9 +34,10 @@ public class View extends JFrame {
 
     private JPanel getInputFields() {
         final JPanel inputFields = new JPanel();
-        inputFields.setLayout(new BoxLayout(inputFields, BoxLayout.Y_AXIS));
+        //inputFields.setLayout(new BoxLayout(inputFields, BoxLayout.Y_AXIS));
+        inputFields.setLayout(new GridLayout(5,0));
 
-        urlTextField = new JTextField();
+        urlTextField = new JTextField(25);
         urlTextField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -44,7 +48,7 @@ public class View extends JFrame {
             }
         });
 
-        savedirTextField = new JTextField();
+        savedirTextField = new JTextField(25);
         savedirTextField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -55,22 +59,22 @@ public class View extends JFrame {
             }
         });
 
-        messageLabel = new JLabel("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-        messageLabel.setPreferredSize(new Dimension(100, 30));
-        messageLabel.setForeground(new Color(50, 100, 0));
+        messageLabel = new JLabel("");
+        messageLabel.setBorder(new EmptyBorder(0,10,0,0));
+        //messageLabel.setPreferredSize(new Dimension(100, 30));
+        //messageLabel.setForeground(new Color(50, 100, 0));
 
-        inputFields.add(new JLabel("URL:"));
+        inputFields.add(new JLabel("<html><b>&nbsp;URL:"));
         inputFields.add(urlTextField);
-        inputFields.add(new JLabel("Mappanév:"));
+        inputFields.add(new JLabel("<html><b>&nbsp;Mappanév:"));
         inputFields.add(savedirTextField);
         inputFields.add(messageLabel);
 
         return inputFields;
     }
 
-    private JPanel getMainButtons(){
+    private JPanel getMainButtons() {
         final JPanel mainButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        mainButtons.setPreferredSize(new Dimension(350, 50));
         mainButtons.add(new Button(0));
         mainButtons.add(new Button(1));
         mainButtons.add(new Button(2));
@@ -104,8 +108,24 @@ public class View extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (0 == type) {
+                    messageLabel.setText("");
+                    messageLabel.setForeground(new Color(50, 100, 0));
+
+                    if (galleryDownloader != null) {
+                        //stop downloader
+                        //set variable to null
+                    }
+
                     savedirTextField.setText(WordUtils.capitalizeFully(savedirTextField.getText()));
-                    final GalleryDownloader galleryDownloader = new GalleryDownloader(urlTextField.getText(), savedirTextField.getText());
+                    try{
+                        galleryDownloader = new GalleryDownloader(urlTextField.getText(), savedirTextField.getText(), messageLabel);
+                        galleryDownloader.downloadGallery();
+                    } catch (MalformedURLException e1) {
+                        messageLabel.setText("Hibás URL!");
+                        messageLabel.setForeground(new Color(200, 0, 0));
+                        view.pack();
+                    }
+
                     //galleryDownloader.downloadURL("http://i3.imgchili.net/105494/105494436_femjoy_12096884_016.jpg", "105494436_femjoy_12096884_016.jpg");
                     //galleryDownloader.getURLcontent("http://people.inf.elte.hu/tengex/");
                 } else if (1 == type) {
