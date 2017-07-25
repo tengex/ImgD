@@ -5,25 +5,29 @@ import jodd.jerry.JerryFunction;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.regex.Pattern;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class GalleryDownloader {
+public class GalleryDownloader implements Runnable {
 
+    private volatile Thread blinker;
     private URL galleryURL;
     private String savedir;
     private JLabel messageLabel;
+    private int counter;
+    private ExecutorService pool;
 
     public GalleryDownloader(String url, String savedir, JLabel messageLabel) throws MalformedURLException {
         this.galleryURL = new URL(url);
         this.savedir = savedir;
         this.messageLabel = messageLabel;
-
-        //System.out.println(galleryURL.getHost());
-        //System.out.println(galleryURL.toString());
+        this.counter = 0;
+        this.pool = Executors.newFixedThreadPool(10);
     }
 
     public String downloadURLtoVariable(URL url) {
@@ -51,9 +55,10 @@ public class GalleryDownloader {
         return "";
     }
 
-    public void downloadURLtoFile(URL url, String savedir, int ind) {
+    public static void downloadURLtoFile(URL url, String savedir, int ind) {
         try {
-            File file = new File(savedir);
+            final String filename = savedir + "_" + ((ind < 10) ? "00" + ind : ((ind < 100) ? "0" + ind : ind)) + ".jpg";
+            File file = new File(savedir + "/" + filename);
             FileUtils.copyURLToFile(url, file);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -62,38 +67,74 @@ public class GalleryDownloader {
         }
     }
 
-    public void downloadGallery() {
-        Jerry galleryHTML = Jerry.jerry(downloadURLtoVariable(galleryURL));
+    public void stop() {
+        blinker = null;
+        pool.shutdownNow();
+    }
 
-        if (galleryURL.getHost().contains("kitty-kats.net")) {
-            galleryHTML.$(".externalLink").each(new JerryFunction() {
-                @Override
-                public Boolean onNode(Jerry $this, int i) {
-                    final String smallImageSrc = $this.find("img").attr("src");
-                    if (smallImageSrc != null) {
-                        //szamlalo++;
-                        //getBigImageSrc(smallImageSrc);
-                        System.out.println(getBigImageSrc(smallImageSrc));
-                    }
-                    return true;
-                }
-            });
-        } else if (galleryURL.getHost().contains("urlgalleries.net")) {
-            galleryHTML.$(".gallery").each(new JerryFunction() {
-                @Override
-                public Boolean onNode(Jerry $this, int i) {
-                    final String smallImageSrc = $this.attr("src").replace("/thumb.php?t=", "");
-                    if (smallImageSrc != null) {
-                        //szamlalo++;
-                        //getBigImageSrc(smallImageSrc);
-                        System.out.println(getBigImageSrc(smallImageSrc));
-                    }
+    @Override
+    public void run() {
+        blinker = Thread.currentThread();
 
-                    return true;
-                }
-            });
-        } else {
-            messageLabel.setText("Nem ismert oldal!");
+        try {
+            FileUtils.forceMkdir(new File(savedir));
+            Jerry galleryHTML = Jerry.jerry(downloadURLtoVariable(galleryURL));
+
+            if (galleryURL.getHost().contains("kitty-kats.net")) {
+                galleryHTML.$(".externalLink").each(new JerryFunction() {
+                    @Override
+                    public Boolean onNode(Jerry $this, int i) {
+                        if (blinker != Thread.currentThread()) {
+                            System.out.println("Thread stopped");
+                            return false;
+                        }
+
+                        final String smallImageSrc = $this.find("img").attr("src");
+                        if (smallImageSrc != null) {
+                            counter++;
+                            final String bigImageSrc = getBigImageSrc(smallImageSrc);
+                            System.out.println(bigImageSrc);
+                            System.out.println(savedir);
+                            try {
+                                pool.submit(new DownloadTask(new URL(bigImageSrc), savedir, counter));
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return true;
+                    }
+                });
+            } else if (galleryURL.getHost().contains("urlgalleries.net")) {
+                galleryHTML.$(".gallery").each(new JerryFunction() {
+                    @Override
+                    public Boolean onNode(Jerry $this, int i) {
+                        if (blinker != Thread.currentThread()) {
+                            System.out.println("Thread stopped");
+                            return false;
+                        }
+
+                        final String smallImageSrc = $this.attr("src").replace("/thumb.php?t=", "");
+                        if (smallImageSrc != null) {
+                            counter++;
+                            final String bigImageSrc = getBigImageSrc(smallImageSrc);
+                            System.out.println(bigImageSrc);
+                            System.out.println(savedir);
+                            try {
+                                pool.submit(new DownloadTask(new URL(bigImageSrc), savedir, counter));
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        return true;
+                    }
+                });
+            } else {
+                messageLabel.setText("Nem ismert oldal!");
+            }
+        } catch (IOException e1) {
+            messageLabel.setText("Hiba a mappa létrehozásakor!");
+            messageLabel.setForeground(new Color(200, 0, 0));
         }
     }
 
@@ -103,7 +144,7 @@ public class GalleryDownloader {
                 final String bigPageSrc = smallImageSrc.replaceAll("/loc\\d+/th_", "/img.php?image=");
                 Jerry bigImageHTML = Jerry.jerry(downloadURLtoVariable(new URL(bigPageSrc)));
                 String bigImageSrc = bigImageHTML.$("#thepic").attr("src");
-                if(bigImageSrc != null) {
+                if (bigImageSrc != null) {
                     bigImageSrc = smallImageSrc.replaceAll("loc\\d+/th_.+\\.jpg", "") + bigImageSrc;
                     return bigImageSrc;
                 }

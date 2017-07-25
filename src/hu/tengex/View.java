@@ -1,7 +1,5 @@
 package hu.tengex;
 
-import org.apache.commons.text.WordUtils;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -20,7 +18,7 @@ public class View extends JFrame {
         super("Image Downloader");
         this.view = this;
         setResizable(false);
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -35,7 +33,7 @@ public class View extends JFrame {
     private JPanel getInputFields() {
         final JPanel inputFields = new JPanel();
         //inputFields.setLayout(new BoxLayout(inputFields, BoxLayout.Y_AXIS));
-        inputFields.setLayout(new GridLayout(5,0));
+        inputFields.setLayout(new GridLayout(5, 0));
 
         urlTextField = new JTextField(25);
         urlTextField.addMouseListener(new MouseAdapter() {
@@ -60,7 +58,7 @@ public class View extends JFrame {
         });
 
         messageLabel = new JLabel("");
-        messageLabel.setBorder(new EmptyBorder(0,10,0,0));
+        messageLabel.setBorder(new EmptyBorder(0, 10, 0, 0));
         //messageLabel.setPreferredSize(new Dimension(100, 30));
         //messageLabel.setForeground(new Color(50, 100, 0));
 
@@ -75,9 +73,12 @@ public class View extends JFrame {
 
     private JPanel getMainButtons() {
         final JPanel mainButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        mainButtons.add(new Button(0));
+        Button enterButton = new Button(0);
+        mainButtons.add(enterButton);
         mainButtons.add(new Button(1));
         mainButtons.add(new Button(2));
+
+        getRootPane().setDefaultButton(enterButton);
 
         return mainButtons;
     }
@@ -112,18 +113,19 @@ public class View extends JFrame {
                     messageLabel.setForeground(new Color(50, 100, 0));
 
                     if (galleryDownloader != null) {
+                        galleryDownloader.stop();
                         //stop downloader
                         //set variable to null
                     }
 
-                    savedirTextField.setText(WordUtils.capitalizeFully(savedirTextField.getText()));
-                    try{
+                    savedirTextField.setText(toTitleCase(savedirTextField.getText()));
+                    try {
                         galleryDownloader = new GalleryDownloader(urlTextField.getText(), savedirTextField.getText(), messageLabel);
-                        galleryDownloader.downloadGallery();
+                        //galleryDownloader.downloadGallery();
+                        new Thread(galleryDownloader).start();
                     } catch (MalformedURLException e1) {
                         messageLabel.setText("Hibás URL!");
                         messageLabel.setForeground(new Color(200, 0, 0));
-                        view.pack();
                     }
 
                     //galleryDownloader.downloadURL("http://i3.imgchili.net/105494/105494436_femjoy_12096884_016.jpg", "105494436_femjoy_12096884_016.jpg");
@@ -133,10 +135,28 @@ public class View extends JFrame {
                     savedirTextField.setText(null);
                     urlTextField.requestFocusInWindow();
                 } else if (2 == type) {
-                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgspice.com, imgchili.net, imgchili.com,\n  sexyimg.eu, imgdrive.net, imagedecode.com, imageknoxx.com, img.yt\n\n<html><u>URL:</u> a galériát tartalmazó oldal elérési címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni jobb kattintással lehet.", "Segítség", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgspice.com, imgchili.net, imgchili.com,\n  sexyimg.eu, imgdrive.net, imagedecode.com, imageknoxx.com, img.yt\n\n<html><u>URL:</u> a galériát tartalmazó oldal teljes URL címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni jobb kattintással lehet, enter nyomására indul a letöltés.", "Segítség", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }
+    }
+
+    public static String toTitleCase(String input) {
+        StringBuilder titleCase = new StringBuilder();
+        boolean nextTitleCase = true;
+
+        for (char c : input.toCharArray()) {
+            if (Character.isSpaceChar(c)) {
+                nextTitleCase = true;
+            } else if (nextTitleCase) {
+                c = Character.toTitleCase(c);
+                nextTitleCase = false;
+            }
+
+            titleCase.append(c);
+        }
+
+        return titleCase.toString();
     }
 }
 

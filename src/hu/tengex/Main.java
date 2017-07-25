@@ -2,9 +2,7 @@ package hu.tengex;
 
 import javax.swing.*;
 
-//TODO Megadott URL alapján töltse le a galériát
-//TODO Szövegmezőben mutassa a letöltés jelenlegi állapotát (ehhez kell, hogy észlelje, amikor egy fájl letöltődött)
-//TODO Letöltéshez legyen megadva timeout, ha az egyik fájl nem akar lejönni (valamint a letöltés gomb újabb megnyomásakor minden jelenlegi letöltő szál leállítódik)
+//TODO Mutassa, ha a letöltések befejeződtek
 //TODO Tesztelni Windows-on is
 
 public class Main {
