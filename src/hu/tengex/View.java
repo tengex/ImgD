@@ -32,7 +32,6 @@ public class View extends JFrame {
 
     private JPanel getInputFields() {
         final JPanel inputFields = new JPanel();
-        //inputFields.setLayout(new BoxLayout(inputFields, BoxLayout.Y_AXIS));
         inputFields.setLayout(new GridLayout(5, 0));
 
         urlTextField = new JTextField(25);
@@ -59,8 +58,6 @@ public class View extends JFrame {
 
         messageLabel = new JLabel("");
         messageLabel.setBorder(new EmptyBorder(0, 10, 0, 0));
-        //messageLabel.setPreferredSize(new Dimension(100, 30));
-        //messageLabel.setForeground(new Color(50, 100, 0));
 
         inputFields.add(new JLabel("<html><b>&nbsp;URL:"));
         inputFields.add(urlTextField);
@@ -114,28 +111,23 @@ public class View extends JFrame {
 
                     if (galleryDownloader != null) {
                         galleryDownloader.stop();
-                        //stop downloader
-                        //set variable to null
                     }
 
                     savedirTextField.setText(toTitleCase(savedirTextField.getText()));
                     try {
                         galleryDownloader = new GalleryDownloader(urlTextField.getText(), savedirTextField.getText(), messageLabel);
-                        //galleryDownloader.downloadGallery();
                         new Thread(galleryDownloader).start();
                     } catch (MalformedURLException e1) {
                         messageLabel.setText("Hibás URL!");
                         messageLabel.setForeground(new Color(200, 0, 0));
                     }
 
-                    //galleryDownloader.downloadURL("http://i3.imgchili.net/105494/105494436_femjoy_12096884_016.jpg", "105494436_femjoy_12096884_016.jpg");
-                    //galleryDownloader.getURLcontent("http://people.inf.elte.hu/tengex/");
                 } else if (1 == type) {
                     urlTextField.setText(null);
                     savedirTextField.setText(null);
                     urlTextField.requestFocusInWindow();
                 } else if (2 == type) {
-                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgspice.com, imgchili.net, imgchili.com,\n  sexyimg.eu, imgdrive.net, imagedecode.com, imageknoxx.com, img.yt\n\n<html><u>URL:</u> a galériát tartalmazó oldal teljes URL címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni jobb kattintással lehet, enter nyomására indul a letöltés.", "Segítség", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader v170726-1 by tengex</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgchili.net, imgchili.com, sexyimg.eu,\n  imgdrive.net, imagedecode.com, imageknoxx.com, img.yt\n\n<html><u>URL:</u> a galériát tartalmazó oldal teljes URL címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni lehet jobb kattintással, enter nyomására\n<html><i>indul a letöltés. Letöltés indításakor az előző letöltési folyamat leáll!", "Segítség", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }

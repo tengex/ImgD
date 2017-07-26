@@ -17,5 +17,6 @@ public class DownloadTask implements Runnable {
     @Override
     public void run() {
         GalleryDownloader.downloadURLtoFile(url, savedir, ind);
+        GalleryDownloader.incDownloadedFilesCount();
     }
 }

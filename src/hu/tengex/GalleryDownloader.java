@@ -18,14 +18,15 @@ public class GalleryDownloader implements Runnable {
     private volatile Thread blinker;
     private URL galleryURL;
     private String savedir;
-    private JLabel messageLabel;
+    private static JLabel messageLabel;
+    private static int downloadedFilesCount;
     private int counter;
     private ExecutorService pool;
 
     public GalleryDownloader(String url, String savedir, JLabel messageLabel) throws MalformedURLException {
         this.galleryURL = new URL(url);
         this.savedir = savedir;
-        this.messageLabel = messageLabel;
+        GalleryDownloader.messageLabel = messageLabel;
         this.counter = 0;
         this.pool = Executors.newFixedThreadPool(10);
     }
@@ -72,8 +73,16 @@ public class GalleryDownloader implements Runnable {
         pool.shutdownNow();
     }
 
+    public static void incDownloadedFilesCount(){
+        downloadedFilesCount++;
+        messageLabel.setText(downloadedFilesCount + " fájl letöltve");
+    }
+
     @Override
     public void run() {
+        downloadedFilesCount=0;
+        messageLabel.setText(downloadedFilesCount + " fájl letöltve");
+        messageLabel.setForeground(new Color(50, 100, 0));
         blinker = Thread.currentThread();
 
         try {
