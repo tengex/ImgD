@@ -59,7 +59,7 @@ public class View extends JFrame {
         messageLabel = new JLabel("");
         messageLabel.setBorder(new EmptyBorder(0, 10, 0, 0));
 
-        inputFields.add(new JLabel("<html><b>&nbsp;URL:"));
+        inputFields.add(new JLabel("<html><b>&nbsp;URL / HTML forráskód:"));
         inputFields.add(urlTextField);
         inputFields.add(new JLabel("<html><b>&nbsp;Mappanév:"));
         inputFields.add(savedirTextField);
@@ -114,20 +114,20 @@ public class View extends JFrame {
                     }
 
                     savedirTextField.setText(toTitleCase(savedirTextField.getText()));
-                    try {
-                        galleryDownloader = new GalleryDownloader(urlTextField.getText(), savedirTextField.getText(), messageLabel);
-                        new Thread(galleryDownloader).start();
-                    } catch (MalformedURLException e1) {
+                    //try {
+                    galleryDownloader = new GalleryDownloader(urlTextField.getText(), savedirTextField.getText(), messageLabel);
+                    new Thread(galleryDownloader).start();
+                    /*} catch (MalformedURLException e1) {
                         messageLabel.setText("Hibás URL!");
                         messageLabel.setForeground(new Color(200, 0, 0));
-                    }
+                    }*/
 
                 } else if (1 == type) {
                     urlTextField.setText(null);
                     savedirTextField.setText(null);
                     urlTextField.requestFocusInWindow();
                 } else if (2 == type) {
-                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader v170726-1 by tengex</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgchili.net, imgchili.com, sexyimg.eu,\n  imgdrive.net, imagedecode.com, imageknoxx.com, img.yt\n\n<html><u>URL:</u> a galériát tartalmazó oldal teljes URL címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni lehet jobb kattintással, enter nyomására\n<html><i>indul a letöltés. Letöltés indításakor az előző letöltési folyamat leáll!", "Segítség", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(view, "<html><b>Image Downloader v170731-2 by tengex</b>\n\n<html><u>Galériák letöltése:</u> kitty-kats.net, urlgalleries.net\n\n<html><u>Kompatibilis képmegosztók:</u> imagevenue.com, imgspice.com, fapat.me,\n  imagetwist.com, imgtrex.com, imgchili.net, imgchili.com, sexyimg.eu,\n  imgdrive.net, imagedecode.com, imageknoxx.com, img.yt, pixhost.org\n\n<html><u>URL:</u> a galériát tartalmazó oldal teljes URL címe\n<html><u>Mappanév:</u> a mentéshez létrehozandó mappa neve</html>\n\n<html><i>Szövegmezőbe beilleszteni lehet jobb kattintással, enter nyomására\n<html><i>indul a letöltés. Letöltés indításakor az előző letöltési folyamat leáll!", "Segítség", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }

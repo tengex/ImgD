@@ -17,14 +17,20 @@ public class GalleryDownloader implements Runnable {
 
     private volatile Thread blinker;
     private URL galleryURL;
+    private String galleryHTML;
     private String savedir;
     private static JLabel messageLabel;
     private static int downloadedFilesCount;
     private int counter;
     private ExecutorService pool;
 
-    public GalleryDownloader(String url, String savedir, JLabel messageLabel) throws MalformedURLException {
-        this.galleryURL = new URL(url);
+    public GalleryDownloader(String url, String savedir, JLabel messageLabel) {
+        try {
+            this.galleryURL = new URL(url);
+        } catch (MalformedURLException e) {
+            this.galleryHTML = url;
+        }
+
         this.savedir = savedir;
         GalleryDownloader.messageLabel = messageLabel;
         this.counter = 0;
@@ -73,24 +79,32 @@ public class GalleryDownloader implements Runnable {
         pool.shutdownNow();
     }
 
-    public static void incDownloadedFilesCount(){
+    public static void incDownloadedFilesCount() {
         downloadedFilesCount++;
         messageLabel.setText(downloadedFilesCount + " fájl letöltve");
     }
 
     @Override
     public void run() {
-        downloadedFilesCount=0;
+        downloadedFilesCount = 0;
         messageLabel.setText(downloadedFilesCount + " fájl letöltve");
         messageLabel.setForeground(new Color(50, 100, 0));
         blinker = Thread.currentThread();
 
         try {
             FileUtils.forceMkdir(new File(savedir));
-            Jerry galleryHTML = Jerry.jerry(downloadURLtoVariable(galleryURL));
 
-            if (galleryURL.getHost().contains("kitty-kats.net")) {
-                galleryHTML.$(".externalLink").each(new JerryFunction() {
+            Jerry jerryGalleryHTML;
+
+            if (galleryURL != null) {
+                jerryGalleryHTML = Jerry.jerry(downloadURLtoVariable(galleryURL));
+            } else {
+                jerryGalleryHTML = Jerry.jerry(galleryHTML);
+            }
+
+            if (galleryURL != null && galleryURL.getHost().contains("kitty-kats.net")
+                    || galleryHTML != null && galleryHTML.contains("kitty-kats.net")) {
+                jerryGalleryHTML.$(".externalLink").each(new JerryFunction() {
                     @Override
                     public Boolean onNode(Jerry $this, int i) {
                         if (blinker != Thread.currentThread()) {
@@ -113,8 +127,9 @@ public class GalleryDownloader implements Runnable {
                         return true;
                     }
                 });
-            } else if (galleryURL.getHost().contains("urlgalleries.net")) {
-                galleryHTML.$(".gallery").each(new JerryFunction() {
+            } else if (galleryURL != null && galleryURL.getHost().contains("urlgalleries.net")
+                    || galleryHTML != null && galleryHTML.contains("urlgalleries.net")) {
+                jerryGalleryHTML.$(".gallery").each(new JerryFunction() {
                     @Override
                     public Boolean onNode(Jerry $this, int i) {
                         if (blinker != Thread.currentThread()) {
@@ -177,6 +192,8 @@ public class GalleryDownloader implements Runnable {
             return smallImageSrc.replace("small/", "big/");
         } else if (smallImageSrc.contains("img.yt/")) {
             return smallImageSrc.replace("img.yt/upload/small/", "t.img.yt/big/");
+        } else if (smallImageSrc.contains("pixhost.org/")) {
+            return smallImageSrc.replace("t9.pixhost.org/thumbs/", "img9.pixhost.org/images/");
         }
 
         return "";
