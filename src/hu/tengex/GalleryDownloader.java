@@ -163,6 +163,7 @@ public class GalleryDownloader implements Runnable {
     }
 
     private String getBigImageSrc(String smallImageSrc) {
+        System.out.println(smallImageSrc);
         if (smallImageSrc.contains("imagevenue.com/")) {
             try {
                 final String bigPageSrc = smallImageSrc.replaceAll("/loc\\d+/th_", "/img.php?image=");
@@ -191,9 +192,21 @@ public class GalleryDownloader implements Runnable {
                 || smallImageSrc.contains("imageknoxx.com/")) {
             return smallImageSrc.replace("small/", "big/");
         } else if (smallImageSrc.contains("img.yt/")) {
+            System.out.println("->"+smallImageSrc);
             return smallImageSrc.replace("img.yt/upload/small/", "t.img.yt/big/");
         } else if (smallImageSrc.contains("pixhost.org/")) {
             return smallImageSrc.replace("t9.pixhost.org/thumbs/", "img9.pixhost.org/images/");
+        } else if (smallImageSrc.contains("turboimagehost.com/")) {
+            try {
+                final String bigPageSrc = smallImageSrc.replaceAll("://\\S+.turboimagehost", "://www.turboimagehost").replaceAll("/t/(\\d+)_", "/p/$1/") + ".html";
+                Jerry bigImageHTML = Jerry.jerry(downloadURLtoVariable(new URL(bigPageSrc)));
+                String bigImageSrc = bigImageHTML.$("#imageid").attr("src");
+                if (bigImageSrc != null) {
+                    return bigImageSrc;
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
 
         return "";
