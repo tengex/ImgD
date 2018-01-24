@@ -1,8 +1,8 @@
 package hu.tengex;
 
-import jodd.jerry.Jerry;
-import jodd.jerry.JerryFunction;
-import org.apache.commons.io.FileUtils;
+import jodd.jerry.Jerry; //jodd-all-3.8.5.jar
+import jodd.jerry.JerryFunction; //jodd-all-3.8.5.jar
+import org.apache.commons.io.FileUtils; //commons-io-2.5.jar
 
 import javax.swing.*;
 import java.awt.*;
@@ -189,7 +189,8 @@ public class GalleryDownloader implements Runnable {
         } else if (smallImageSrc.contains("sexyimg.eu/")
                 || smallImageSrc.contains("imgdrive.net/")
                 || smallImageSrc.contains("imagedecode.com/")
-                || smallImageSrc.contains("imageknoxx.com/")) {
+                || smallImageSrc.contains("imageknoxx.com/")
+                || smallImageSrc.contains("imgserve.net/")) {
             return smallImageSrc.replace("small/", "big/");
         } else if (smallImageSrc.contains("img.yt/")) {
             System.out.println("->"+smallImageSrc);

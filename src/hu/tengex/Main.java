@@ -2,9 +2,6 @@ package hu.tengex;
 
 import javax.swing.*;
 
-//TODO Mutassa, ha a letöltések befejeződtek
-//TODO Tesztelni Windows-on is
-
 public class Main {
 
     public static void main(String[] args) {
